@@ -16,27 +16,28 @@ const KeywordDensityTool = () => {
   }
 
   const calculateDensity = () => {
-    const totalWords = text.split(/\s+/).filter(Boolean).length
+    // Xử lý văn bản thành một đoạn văn liền mạch
+    const processedText = text.replace(/\s+/g, ' ').trim()
+
+    const totalWords = processedText.split(/\s+/).filter(Boolean).length
     const keywordResults = keywords.map((keyword) => {
-      const keywordCount = text.split(new RegExp(`\\b${keyword}\\b`, 'gi')).length - 1
+      const keywordCount = processedText.split(new RegExp(`\\b${keyword}\\b`, 'gi')).length - 1
       const keywordDensity = (keywordCount / totalWords) * 100
       let status = 'low'
       let suggestion = ''
 
-      if (keywordDensity >= 2 && keywordDensity <= 3) {
+      if (keywordDensity >= 0.5 && keywordDensity <= 2.5) {
         status = 'good'
         suggestion = `Mật độ từ khóa '${keyword}' đạt mức tốt.`
-      } else if (keywordDensity > 3) {
+      } else if (keywordDensity > 2.5) {
         status = 'high'
-        // Số lượng từ cần giảm để mật độ về mức 3%
-        const optimalCount = Math.floor((3 / 100) * totalWords)
+        const optimalCount = Math.floor((2.5 / 100) * totalWords)
         const wordsToReduce = keywordCount - optimalCount
-        suggestion = `Mật độ từ khóa '${keyword}' quá cao. Hãy giảm bớt từ khóa này khoảng ${wordsToReduce} lần để đưa mật độ về mức tốt (3%).`
+        suggestion = `Mật độ từ khóa '${keyword}' quá cao. Hãy giảm bớt từ khóa này khoảng ${wordsToReduce} lần để đưa mật độ về mức tốt (2.5%).`
       } else {
-        // Số lượng từ cần thêm để mật độ đạt mức 2%
-        const optimalCount = Math.ceil((2 / 100) * totalWords)
+        const optimalCount = Math.ceil((0.5 / 100) * totalWords)
         const wordsToAdd = optimalCount - keywordCount
-        suggestion = `Mật độ từ khóa '${keyword}' quá thấp. Hãy thêm từ khóa này khoảng ${wordsToAdd} lần vào văn bản để đạt mức tốt (2%).`
+        suggestion = `Mật độ từ khóa '${keyword}' quá thấp. Hãy thêm từ khóa này khoảng ${wordsToAdd} lần vào văn bản để đạt mức tốt (0.5%).`
       }
 
       return { keyword, density: keywordDensity.toFixed(2), status, suggestion }
